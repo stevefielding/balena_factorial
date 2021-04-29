@@ -1,0 +1,29 @@
+# base-image for python on any machine using a template variable,
+# see more about dockerfile templates here: https://www.balena.io/docs/learn/develop/dockerfile/
+#FROM balenalib/%%BALENA_MACHINE_NAME%%-python:3-stretch-run
+# The RPi image defaults to 64-bit and this does not include vcgencmd (libraspberrypi-bin)
+# Installing the library does not seem to work for the 64-bit image, so we will
+# load RPi3 image, which should work on RPi4
+# https://forums.balena.io/t/vcgencmd-not-available-in-balenalib-raspberrypi4-64-node-10-stretch-run/182461
+FROM balenalib/raspberrypi3-python:3-stretch-run
+
+# use `install_packages` if you need to install dependencies,
+# for instance if you need git, just uncomment the line below.
+# RUN install_packages git
+
+# Set our working directory
+WORKDIR /usr/src/app
+
+# install libraspberrypi-bin which gives us access to vcgencmd
+# RUN apt-get update && apt-get install -y libraspberrypi-bin
+#RUN apt-get update && apt-get install -y vim
+
+# This will copy all files in our root to the working  directory in the container
+COPY . ./
+
+# Enable udevd so that plugged dynamic hardware devices show up in our container.
+#ENV UDEV=1
+
+# main.py will run when container starts up on the device
+CMD ["python","-u","./src/factorial.py"]
+
